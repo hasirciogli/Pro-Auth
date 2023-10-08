@@ -1,6 +1,6 @@
 <?php
 
-namespace App\assignments\databaseservice;
+namespace HProAuth\assignments\databaseservice;
 
 interface DatabaseServiceInterface {
     public function GetClientDetailsBy_ClientId($ClientId) : null | array;

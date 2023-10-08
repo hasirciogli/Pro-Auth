@@ -1,6 +1,6 @@
 <?php
 
-namespace App\assignments\accountservice;
+namespace HProAuth\assignments\accountservice;
 
 interface AccountServiceInterface {
     
