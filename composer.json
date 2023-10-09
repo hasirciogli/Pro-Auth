@@ -1,10 +1,20 @@
 {
-    "require": {
-        
-    },
+    "name": "hasirciogli/pro-auth",
+    "description": "Authenticate/Authorize service seems like oauth 2.0",
+    "type": "library",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
-            "HProAuth\\": "app/"
+            "Hasirciogli\\ProAuth\\": "src/"
         }
+    },
+    "authors": [
+        {
+            "name": "Mustafa Hasırcıoğlu",
+            "email": "mhasirciogli@gmail.com"
+        }
+    ],
+    "require": {
+        "hasirciogli/hdb": "1.0.1"
     }
 }
