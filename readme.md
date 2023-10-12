@@ -8,7 +8,8 @@
 <details>
   <summary>İstemci Sistemi (Clients)</summary>
   <div>
-    <div>3 adet client tipi bulunmaktadır</div>
+
+    3 adet client tipi bulunmaktadır
     
     system: Sistem clientleri sistem projeleriniz için kullanılmalıdır. 
     Örnek google ads adsense admob gibi diğer birimler.
@@ -29,7 +30,8 @@
 <details>
   <summary>İstek Limit Sistemi (RequestLimitter)</summary>
   <div>
-    <div>3 adet limitter tipi bulunmaktadır</div>
+    
+    3 adet limitter tipi bulunmaktadır
     
     Authenticate: Authenticate kullanıcı bilgilerinin 
     post edildiği kısımda özel bir limitter bulunaktadır. 
