@@ -25,11 +25,11 @@ class TokenModel
     {
         switch ($TokenType) {
             case "access":
-                return Database::cfun(DatabaseConfig::cfun())->Select("access_tokens")->Where("token", true)->BindParam("token", $Token)->Run()->Get() ?? null;
+                return ($Result = Database::cfun(DatabaseConfig::cfun())->Select("access_tokens")->Where("token", true)->BindParam("token", $Token)->Run()->Get() ?? null) ? $Result : null;
             case "refresh":
-                return Database::cfun(DatabaseConfig::cfun())->Select("refresh_tokens")->Where("token", true)->BindParam("token", $Token)->Run()->Get() ?? null;
+                return ($Result = Database::cfun(DatabaseConfig::cfun())->Select("refresh_tokens")->Where("token", true)->BindParam("token", $Token)->Run()->Get() ?? null) ? $Result : null;
             case "authorization":
-                return Database::cfun(DatabaseConfig::cfun())->Select("authorization_tokens")->Where("token", true)->BindParam("token", $Token)->Run()->Get() ?? null;
+                return ($Result = Database::cfun(DatabaseConfig::cfun())->Select("authorization_tokens")->Where("token", true)->BindParam("token", $Token)->Run()->Get() ?? null) ? $Result : null;
             default:
                 throw new \ErrorException("Invaid Token Type");
         }

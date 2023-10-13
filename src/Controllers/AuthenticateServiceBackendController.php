@@ -7,6 +7,7 @@ use Hasirciogli\ProAuth\Config\DatabaseConfig;
 use Hasirciogli\ProAuth\Config\RequestsConfig;
 use Hasirciogli\ProAuth\Models\AccountModel;
 use Hasirciogli\ProAuth\Models\AuthenticateRateLimitter;
+use Hasirciogli\ProAuth\Models\ClientAccessModel;
 use Hasirciogli\ProAuth\Models\ClientModel;
 use Hasirciogli\ProAuth\Models\HashModel;
 use Hasirciogli\ProAuth\Models\LanguageModel;
@@ -21,6 +22,11 @@ class AuthenticateServiceBackendController
     public function RegisterRoutes(Router $Router): void
     {
         $Session = new Session(DatabaseConfig::cfun());
+
+        $Router->post('/proauth0/authorize', function (Request $Request, Response $Response) {
+            $Response->headers->set("Access-Control-Allow-Origin", "*", true);
+            return $this->Authorize($Request, $Response);
+        });
 
         $Router->get('/proauth0/authenticate', function (Request $Request, Response $Response) {
             return $this->AuthenticateGet($Request, $Response);
@@ -41,6 +47,50 @@ class AuthenticateServiceBackendController
         });
 
         $Router->run();
+    }
+
+    public function Authorize(Request $Request, Response $Response)
+    {
+        $AuthorizationToken = $Request->request->get("authorization_token") ?? "-1";
+
+
+        if (!($RAT = TokenModel::cfun()->GetToken("authorization", $AuthorizationToken)))
+            return [
+                "status" => false,
+                "err" => "invalid err 1",
+            ];
+
+        if (!ClientAccessModel::cfun()->CanClientAccessToAccount($RAT["client_id"], $RAT["account_id"]))
+            if (!ClientAccessModel::cfun()->AddClientAccessToAccount($RAT["client_id"], $RAT["account_id"]))
+                return [
+                    "status" => false,
+                    "err" => "invalid err 1x",
+                ];
+
+        if (!($RefreshToken = TokenModel::cfun()->AddRefreshToken($RAT["account_id"], $RAT["client_id"])))
+            return [
+                "status" => false,
+                "err" => "invalid err 2",
+            ];
+
+        if (!($AccessToken = TokenModel::cfun()->AddAccessToken($RAT["account_id"], $RAT["client_id"])))
+            return [
+                "status" => false,
+                "err" => "invalid err 3",
+            ];
+
+
+        if (!(TokenModel::cfun()->DeleteToken("authorization", $AuthorizationToken)))
+            return [
+                "status" => false,
+                "err" => "invalid err 1.33x",
+            ];
+
+        return [
+            "status" => true,
+            "accesstoken" => $AccessToken,
+            "refreshtoken" => $RefreshToken,
+        ];
     }
 
     public function AuthenticateGet(Request $Request, Response $Response)

@@ -1,4 +1,9 @@
 <?php
+
+
+require_once __DIR__ . "/vendor/autoload.php";
+
+
 use Hasirciogli\ProAuth\Config\DatabaseConfig;
 use Hasirciogli\ProAuth\Models\LanguageModel;
 use Hasirciogli\SessionWrapper\Session;
@@ -10,7 +15,9 @@ if ($_POST) {
     $RedirectTo = $_POST["redirect_to"] ?? "";
     $Lang = $_POST["lang"] ?? "";
 
-    $Hash = HashModel::cfun()->GenerateHashForAuthenticate($ClientId, $ClientSecret, $RedirectTo);
+    $HashTr = $ClientId . $RedirectTo . $ClientSecret;
+
+    $Hash = base64_encode(pack("H*", sha1($HashTr)));
 
     $ClientId = urlencode($ClientId);
     $RedirectTo = urlencode($RedirectTo);
@@ -18,6 +25,8 @@ if ($_POST) {
 
     $Ruri = "http://localhost:1167/proauth0/authenticate?client_id=$ClientId&redirect_to=$RedirectTo&hash=$Hash&lang=$Lang";
 }
+
+$AuthorizationToken = $_GET["authorizationtoken"] ?? null;
 
 $StaticImages = "http://public-cdn.hasirciogli.com";
 
@@ -120,21 +129,49 @@ $CsrfToken = $Session->Get("csrf-token");
                 echo "<a href=\"$Ruri\">Authenticate</a>";
             } ?>
 
+            <script>
+                $(document).ready(() => {
+                    $("#submit-grant").click(() => {
+                        if (window.confirm("<?php echo $AuthorizationToken ?? "-1"; ?>"))
+                            $.ajax({
+                                url: "http://localhost:1167/proauth0/authorize",
+                                method: "POST",
+                                data: {
+                                    authorization_token: "<?php echo $AuthorizationToken ?? "-1"; ?>",
+                                },
+                                success: (res, status) => {
+                                    console.log(res);
+                                    if (!res.status) {
+                                        return alert(res.err);
+                                    } else {
+                                        alert("SUCC");
+
+                                    }
+                                }
+                            })
+                    });
+                });
+            </script>
+
+
             <form method="post" action="/t" class="flex flex-col w-full h-full gap-4 mt-4 p-4 transition-colors">
 
                 <input type="text" placeholder="client_id" name="client_id" id="client_id"
-                value="63e00a9a600045babdb935d63e00a9a600045b8563e00a9a600045b935d63e00a9a0a9a1b64c"
+                    value="63e00a9a600045babdb935d63e00a9a600045b8563e00a9a600045b935d63e00a9a0a9a1b64c"
                     class="rounded bg-transparent w-full text-sm transition-colors">
                 <input type="text" placeholder="client_secret" name="client_secret" id="client_secret"
-                value="63e0063e00a9a600045babdb935d63e00a9a6000063e00a9a600045babdb935d63e00a9a6000"
+                    value="63e0063e00a9a600045babdb935d63e00a9a6000063e00a9a600045babdb935d63e00a9a6000"
                     class="rounded bg-transparent w-full text-sm transition-colors">
                 <input type="text" placeholder="lang" name="lang" id="lang"
                     class="rounded bg-transparent w-full text-sm transition-colors" value="tr">
                 <input type="text" placeholder="redirect_to" name="redirect_to" id="redirect_to"
-                    class="rounded bg-transparent w-full text-sm transition-colors" value="http://localhost:1167/t">
+                    class="rounded bg-transparent w-full text-sm transition-colors" value="http://localhost:5555/t">
 
 
-                <div class="flex w-full justify-end transition-colors">
+                <div class="flex w-full justify-between transition-colors">
+                    <input id="submit-grant" type="button"
+                        class="p-3 py-2 text-white dark:text-zinc-200 font-normal font-arial text-xs bg-zinc-800 dark:bg-zinc-600 hover:bg-blue-600 dark:hover:bg-blue-600 hover:cursor-pointer rounded duration-200 transition-colors"
+                        value="Grant">
                     <input id="submit-login" type="submit"
                         class="p-3 py-2 text-white dark:text-zinc-200 font-normal font-arial text-xs bg-zinc-800 dark:bg-zinc-600 hover:bg-blue-600 dark:hover:bg-blue-600 hover:cursor-pointer rounded duration-200 transition-colors"
                         value="<?php echo $Phrases["auth_submit_value_1"]; ?>">
