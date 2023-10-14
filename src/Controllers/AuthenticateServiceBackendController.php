@@ -37,7 +37,6 @@ class AuthenticateServiceBackendController
             return $this->AuthenticatePost($Request, $Response);
         });
 
-
         $Router->get('/t', function (Request $Request, Response $Response) {
             require_once __DIR__ . "/../Pages/Auth/Test.php";
         });
